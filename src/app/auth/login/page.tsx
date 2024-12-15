@@ -1,5 +1,7 @@
 "use client";
 
+import axios from "axios";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -8,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,31 +18,62 @@ import {
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-  emailAddress: z.string().email(),
-  password: z.string().min(8),
+  Email: z.string().email(),
+  Password: z.string().min(4),
 });
 
 export default function Login() {
-  // 1. Define your form.
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      emailAddress: "",
-      password: "",
+      Email: "",
+      Password: "",
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  const router = useRouter();
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+
+      interface LoginResponse {
+        data: { id: string; name: string; role: string; token: string; };
+      }
+
+      const response = await axios.post<LoginResponse>("/api/auth/login", values, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if(response.status === 200) {
+        console.log(response.data);
+
+        const { id, name, role, token } = response.data.data;
+
+        localStorage.setItem('id', id);
+        localStorage.setItem('name', name);
+        localStorage.setItem('role', role);
+        localStorage.setItem("userToken", token);
+        
+        router.push('/dashboard');
+      }
+      else {
+        console.log("Login failed. Please check your credentials and try again.");
+      }
+    }
+    catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -55,10 +87,10 @@ export default function Login() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
               <FormField
                 control={form.control}
-                name="emailAddress"
+                name="Email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Username</FormLabel>
+                    <FormLabel>Email Address</FormLabel>
                     <FormControl>
                       <Input placeholder="Enter your email address" {...field} />
                     </FormControl>
@@ -68,7 +100,7 @@ export default function Login() {
               />
               <FormField
                 control={form.control}
-                name="password"
+                name="Password"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Password</FormLabel>

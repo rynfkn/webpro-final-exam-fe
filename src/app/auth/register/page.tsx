@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -22,18 +21,18 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
 
 const formSchema = z.object({
-  fullName: z.string(),
-  emailAddress: z.string().email(),
-  phoneNumber: z.string().min(10),
+  name: z.string(),
+  email: z.string().email(),
   password: z.string().min(8),
+  phoneNumber: z.string().min(10),
 });
 
 export default function Register() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fullName: "",
-      emailAddress: "",
+      name: "",
+      email: "",
       phoneNumber: "",
       password: "",
     },
@@ -50,6 +49,7 @@ export default function Register() {
       });
 
       console.log(response);
+      router.push('/auth/login');
 
     } catch (error) {
       console.error(error);
@@ -67,7 +67,7 @@ export default function Register() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
               <FormField
                 control={form.control}
-                name="fullName"
+                name="name"
                 render={({ field }) => {
                   return (
                     <FormItem>
@@ -81,7 +81,7 @@ export default function Register() {
               />
               <FormField
                 control={form.control}
-                name="emailAddress"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email Address</FormLabel>

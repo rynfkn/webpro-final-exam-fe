@@ -12,11 +12,11 @@
 // next.config.js
 module.exports = {
   async rewrites() {
-    return [
-      {
-        source: '/api/:path*', // Local API route
-        destination: 'https://webpro-final-backend-production.up.railway.app/:path*', // External API endpoint
-      },
-    ];
-  },
+      return [
+        {
+          source: '/api/:path*',
+          destination: 'https://webpro-final-backend-production.up.railway.app/api/:path*',
+        },
+      ]
+    },
 };
